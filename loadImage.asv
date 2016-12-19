@@ -1,0 +1,7 @@
+function [ allBands ] = loadAll( path )
+%loadImage load multiband image from path
+%   
+allBands = imread(path);
+
+end
+

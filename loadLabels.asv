@@ -1,0 +1,12 @@
+function [ labels ] = loadLabels( path )
+%loadLabels load labels from path
+%  
+labels = imread(path);
+[xdim, ydim] = size(labels);
+nlabels = zeros(xdim * ydim, 1);
+
+for i = 0:xdim
+    nlabels(i * ydim, :) = labels(i, :);
+end
+
+n
