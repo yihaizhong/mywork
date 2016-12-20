@@ -15,7 +15,7 @@ n = length(label);
 if n == 0
     rate = 'no label';
 else
-    correct_cnt = sum(c==label);
-    crate = correct_cnt/n*100;
+    correct_cnt = sum(c == label);
+    crate = correct_cnt / n*100;
     rate = sprintf('%.2f%%',crate);
 end

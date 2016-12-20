@@ -1,7 +1,9 @@
-[train1, test1] = getWindowTrainTestFeatures(windowFeatures, labels, 5, 15);
+c1 = 1;
+c2 = 8;
+[train1, test1] = getWindowTrainTestFeatures(windowFeatures, labels, c1, 15);
 trainLabel1 = ones(size(train1, 1),1);
 testLabel1 = ones(size(test1, 1),1);
-[train2, test2] = getWindowTrainTestFeatures(windowFeatures, labels, 10, 15);
+[train2, test2] = getWindowTrainTestFeatures(windowFeatures, labels, c2, 15);
 trainLabel2 = -ones(size(train2, 1),1);
 testLabel2 = -ones(size(test2, 1),1);
 train = [train1; train2];
