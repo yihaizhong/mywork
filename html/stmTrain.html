@@ -1,0 +1,288 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>stmTrain</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-12-20"><meta name="DC.source" content="stmTrain.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#3">initialize</a></li><li><a href="#4">get wj by iteration</a></li><li><a href="#6">check condition of terminnation</a></li><li><a href="#8">get b</a></li><li><a href="#9">output stm</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> stm = stmTrain(X,Y,C)
+</pre><pre class="codeinput"><span class="comment">%STMTRAIN</span>
+<span class="comment">% STM Classification:</span>
+<span class="comment">%   svm = svmTrain(x,y,C);</span>
+<span class="comment">%   X : n x ... tensor</span>
+<span class="comment">%   Y : n x 1 labels</span>
+<span class="comment">%   C : soft</span>
+<span class="comment">% STM Regression:</span>
+<span class="comment">%   stm = stmTrain(x,y,C);</span>
+</pre><h2>initialize<a name="3"></a></h2><pre class="codeinput">options = optimset;
+options.LargeScale = <span class="string">'off'</span>;
+options.Display = <span class="string">'off'</span>;
+
+Y = Y';<span class="comment">%for quadprog</span>
+n = length(Y);
+w = {rand(X.size(2), 1); rand(X.size(3), 1); rand(X.size(4), 1)};
+a_all = zeros(n, 3);
+wnew = w;
+fmin = 1000;
+maxk = 500;
+itk=1;
+</pre><pre class="codeoutput error">&#36755;&#20837;&#21442;&#25968;&#30340;&#25968;&#30446;&#19981;&#36275;&#12290;
+
+&#20986;&#38169; stmTrain (line 15)
+Y = Y';%for quadprog
+</pre><h2>get wj by iteration<a name="4"></a></h2><pre class="codeinput"><span class="keyword">while</span> itk &lt; maxk
+</pre><pre class="codeinput">    <span class="keyword">for</span> j = 1:3
+
+       yita = 1;
+       XX = X;
+       mode = 2;
+       <span class="keyword">for</span> i = 1:3
+           <span class="keyword">if</span> i == j
+               mode = mode + 1;
+               <span class="keyword">continue</span>;
+           <span class="keyword">end</span>
+           wi = cell2mat(wnew(i));
+           yita = yita * sqrt(wi'*wi);
+
+           XX = ttv(XX,wi,mode);
+       <span class="keyword">end</span>
+       XX = double(XX);
+       XX = XX';
+       H =  (Y'*Y).*(XX'*XX) / yita ;
+       f = -ones(n,1);
+       A = [];
+       b = [];
+       Aeq = Y;
+       beq = 0;
+       lb = zeros(n,1);
+       ub = C*ones(n,1);
+       a0 = zeros(n,1);
+       [a, fval, eXitflag, output, lambda]  = quadprog(H, f, A, b, Aeq, beq, lb, ub, a0, options);
+       a_all(:,j) = a(:);
+       wj = 0;
+       <span class="keyword">for</span> i = 1:n
+           wj = wj + 1 / yita * a(i) * Y(i) * XX(:,i);
+       <span class="keyword">end</span>
+       wnew(j) = mat2cell(wj,length(wj));
+    <span class="keyword">end</span>
+</pre><h2>check condition of terminnation<a name="6"></a></h2><pre class="codeinput">    sum = 0;
+    <span class="keyword">for</span> j = 1:3
+        wj = cell2mat(wnew(j));
+        wj_old = cell2mat(w(j));
+        sum = sum + (wj'*wj_old) / (wj'*wj)-1;
+    <span class="keyword">end</span>
+    w = wnew;
+    itk = itk+1;
+    <span class="keyword">if</span> abs(sum) &lt; 0.0000001
+        <span class="keyword">break</span>;
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> fval &lt; fmin
+        tw = w;
+        tbest =a_all;
+        fmin = fval;
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+<span class="keyword">if</span> itk == maxk
+    a_all = tbest;
+    wnew = tw;
+<span class="keyword">end</span>
+</pre><h2>get b<a name="8"></a></h2><pre class="codeinput">ep=1e-8;
+stm1 = find(a_all(:,1)&gt;=ep);
+stm2 = find(a_all(:,2)&gt;=ep);
+stm3 = find(a_all(:,3)&gt;=ep);
+stm_index = intersect(stm1,stm2);
+stm_index = intersect(stm_index,stm3);
+stm_tensor = X(stm_index,:,:,:);
+tY = Y';
+stm_label = tY(stm_index);
+
+<span class="keyword">for</span> j = 1:3
+    wj = cell2mat(wnew(j));
+    stm_tensor = ttv(stm_tensor, wj, 2);
+<span class="keyword">end</span>
+
+wtx = double(stm_tensor);
+b = mean(stm_label-wtx);
+</pre><h2>output stm<a name="9"></a></h2><pre class="codeinput">stm.x = X;
+stm.y = Y;
+stm.w = wnew;
+stm.a = a_all;
+stm.c = C;
+stm.b = b;
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function stm = stmTrain(X,Y,C)
+%STMTRAIN 
+% STM Classification:
+%   svm = svmTrain(x,y,C); 
+%   X : n x ... tensor
+%   Y : n x 1 labels
+%   C : soft 
+% STM Regression:
+%   stm = stmTrain(x,y,C); 
+%% initialize
+options = optimset;
+options.LargeScale = 'off';
+options.Display = 'off';
+
+Y = Y';%for quadprog
+n = length(Y);
+w = {rand(X.size(2), 1); rand(X.size(3), 1); rand(X.size(4), 1)};
+a_all = zeros(n, 3);
+wnew = w;
+fmin = 1000;
+maxk = 500;
+itk=1;
+%% get wj by iteration
+while itk < maxk
+    for j = 1:3
+       
+       yita = 1;
+       XX = X;
+       mode = 2;
+       for i = 1:3
+           if i == j
+               mode = mode + 1;
+               continue;
+           end
+           wi = cell2mat(wnew(i));
+           yita = yita * sqrt(wi'*wi);
+           
+           XX = ttv(XX,wi,mode);
+       end
+       XX = double(XX);
+       XX = XX';
+       H =  (Y'*Y).*(XX'*XX) / yita ;
+       f = -ones(n,1);
+       A = [];
+       b = [];
+       Aeq = Y;
+       beq = 0;
+       lb = zeros(n,1);
+       ub = C*ones(n,1);
+       a0 = zeros(n,1);
+       [a, fval, eXitflag, output, lambda]  = quadprog(H, f, A, b, Aeq, beq, lb, ub, a0, options);
+       a_all(:,j) = a(:);
+       wj = 0;
+       for i = 1:n
+           wj = wj + 1 / yita * a(i) * Y(i) * XX(:,i);
+       end
+       wnew(j) = mat2cell(wj,length(wj));
+    end
+    %% check condition of terminnation
+    sum = 0;
+    for j = 1:3
+        wj = cell2mat(wnew(j));
+        wj_old = cell2mat(w(j));
+        sum = sum + (wj'*wj_old) / (wj'*wj)-1;
+    end
+    w = wnew;
+    itk = itk+1;
+    if abs(sum) < 0.0000001
+        break;
+    end
+    
+    if fval < fmin
+        tw = w;
+        tbest =a_all;
+        fmin = fval;
+    end
+end
+if itk == maxk
+    a_all = tbest;
+    wnew = tw;
+end
+%% get b
+ep=1e-8;
+stm1 = find(a_all(:,1)>=ep);
+stm2 = find(a_all(:,2)>=ep);
+stm3 = find(a_all(:,3)>=ep);
+stm_index = intersect(stm1,stm2);
+stm_index = intersect(stm_index,stm3);
+stm_tensor = X(stm_index,:,:,:);
+tY = Y';
+stm_label = tY(stm_index);
+    
+for j = 1:3
+    wj = cell2mat(wnew(j));
+    stm_tensor = ttv(stm_tensor, wj, 2);
+end
+
+wtx = double(stm_tensor);
+b = mean(stm_label-wtx);
+%% output stm
+
+stm.x = X;
+stm.y = Y;
+stm.w = wnew;
+stm.a = a_all;
+stm.c = C;
+stm.b = b;
+end
+
+
+##### SOURCE END #####
+--></body></html>
