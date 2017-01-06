@@ -1,7 +1,7 @@
 function stm = stmTrain(X,Y,C)
 %STMTRAIN 
 % STM Classification:
-%   svm = svmTrain(x,y,C); 
+%   stm = stmTrain(x,y,C); 
 %   X : n x ... tensor
 %   Y : n x 1 labels
 %   C : soft 
@@ -18,7 +18,7 @@ w = {rand(X.size(2), 1); rand(X.size(3), 1); rand(X.size(4), 1)};
 a_all = zeros(n, 3);
 wnew = w;
 fmin = 1000;
-maxk = 500;
+maxk = 5000;
 itk=1;
 %% get wj by iteration
 while itk < maxk
@@ -63,12 +63,13 @@ while itk < maxk
         wj_old = cell2mat(w(j));
         sum = sum + (wj'*wj_old) / (wj'*wj)-1;
     end
+    
     w = wnew;
     itk = itk+1;
-    if abs(sum) < 0.0000001
+    if abs(sum) < 1e-7
         break;
     end
-    
+    fval
     if fval < fmin
         tw = w;
         tbest =a_all;
@@ -78,14 +79,17 @@ end
 if itk == maxk
     a_all = tbest;
     wnew = tw;
+    'no best'
 end
 %% get b
-ep=1e-8;
+ep=1e-10;
 stm1 = find(a_all(:,1)>=ep);
 stm2 = find(a_all(:,2)>=ep);
 stm3 = find(a_all(:,3)>=ep);
 stm_index = intersect(stm1,stm2);
 stm_index = intersect(stm_index,stm3);
+
+if length(stm_index) > 1
 stm_tensor = X(stm_index,:,:,:);
 tY = Y';
 stm_label = tY(stm_index);
@@ -97,6 +101,9 @@ end
 
 wtx = double(stm_tensor);
 b = mean(stm_label-wtx);
+else
+    b = 0;
+end
 %% output stm
 
 stm.x = X;

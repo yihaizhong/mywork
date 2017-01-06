@@ -1,5 +1,6 @@
-className = 1:16;
-className = className';
+% className = 1:16;
+% className = className';
+className=[1;5;7;9;11];
 classCnt = length(className);
 train = [];
 test = [];
