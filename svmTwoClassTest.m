@@ -1,8 +1,8 @@
 k=1;
 for i = 1:16
     for j = i+1:16
-        c1=i
-        c2=j
+        c1=2
+        c2=3
 [train1, test1] = getSingleTrainTestFeatures(pcaFeatures, labels, c1, 15);
 trainLabel1 = ones(size(train1, 1),1);
 testLabel1 = ones(size(test1, 1),1);
@@ -24,8 +24,9 @@ testLabel = [testLabel1; testLabel2];
 
 % kernel function
 C = 200;               
-ker = struct('type','linear');
-
+% ker = struct('type','linear');
+ker = struct('type','gauss');
+        ker.width = 16;
 % test sample
 % n = 50;
 % randn('state',6);

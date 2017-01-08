@@ -1,4 +1,4 @@
-function [ stmm ] = stmMulTrain( X, Y)
+function [ svmm ] = svmMulTrain( X, Y)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 class_m=unique(Y);
@@ -8,24 +8,30 @@ class_cnt=length(class_m);
 %stmm=struct(class_cnt, class_cnt - 1);
 for i = 1:class_cnt-1
     for j = i + 1:class_cnt
-%         i=9;j=16;
+%           i=1;j=6;
         indexi = find(Y == class_m(i));
         indexj = find(Y == class_m(j));
         yij=[ones(length(indexi),1);-ones(length(indexj),1)];
-        ci=X(indexi,:,:,:);
-        ci=double(ci);
-        cj=X(indexj,:,:,:);
-        cj=double(cj);
+        ci=X(indexi,:);
+%         ci=double(ci);
+        cj=X(indexj,:);
+%         cj=double(cj);
         cij=[ci;cj];
-        cij=tensor(cij);
-        bestC = getBestC(cij, yij);
-        stmm.stm(i,j)=stmTrain(cij,yij,bestC);
+%         cij=tensor(cij);gauss
+%         ker = struct('type','linear');
+        ker = struct('type','gauss');
+        ker.width = 16;
+        i,j
+        C=200;
+%         bestC = getBestC(cij, yij)
+
+        svmm.svm(i,j)=svmTrain('svc_c',cij',yij',ker,C);
     end
 end
-stmm.X=X;
-stmm.Y=Y;
-stmm.class_m=class_m;
-stmm.class_cnt=class_cnt;
+svmm.X=X;
+svmm.Y=Y;
+svmm.class_m=class_m;
+svmm.class_cnt=class_cnt;
 end
 
 function bestC = getBestC(trainSet, trainLabels)
@@ -34,12 +40,14 @@ function bestC = getBestC(trainSet, trainLabels)
     trainCount = ceil(n * 2 / 3) / 2;
 %     testCount = n - trainCount;
     
-    subTrainSet = [trainSet(1:trainCount, :, :, :);trainSet(halfIndex + 1 :, :, :, :)];
-    subTrainLabels = trainLabels(1:trainCount);
+    subTrainSet = tensor([double(trainSet(1:trainCount, :, :, :)); ...
+                    double(trainSet(halfIndex + 1 :halfIndex + trainCount, :, :, :))]);
+    subTrainLabels = [trainLabels(1:trainCount);trainLabels(halfIndex + 1:halfIndex + trainCount)];
     
-    subTestSet = trainSet(trainCount + 1 :n, :, :, :);
-    subTestLabels = trainLabels(trainCount + 1 :n);
-    
+    subTestSet = tensor([double(trainSet(trainCount + 1 : halfIndex, :, :, :)); ...
+                    double(trainSet(halfIndex + trainCount + 1 : n, :, :, :))]);
+    subTestLabels = [trainLabels(trainCount + 1 :halfIndex);trainLabels(halfIndex + trainCount + 1 : n)];
+     
     bestC = 0;
     bestPredict = 0;
     
@@ -66,3 +74,4 @@ end
 %     start_set(i+1)=k;
 % end
 % end
+
