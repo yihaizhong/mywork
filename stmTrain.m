@@ -14,11 +14,16 @@ options.Display = 'off';
 
 Y = Y';%for quadprog
 n = length(Y);
-w = {rand(X.size(2), 1); rand(X.size(3), 1); rand(X.size(4), 1)};
+w1 = rand(X.size(2), 1);
+w2 = rand(X.size(3), 1);
+w3 = rand(X.size(4), 1);
+
+w = {w1/norm(w1); w2/norm(w2); w3/norm(w3)};
+
 a_all = zeros(n, 3);
 wnew = w;
 fmin = 1000;
-maxk = 5000;
+maxk = 500;
 itk=1;
 %% get wj by iteration
 while itk < maxk
@@ -33,7 +38,7 @@ while itk < maxk
                continue;
            end
            wi = cell2mat(wnew(i));
-           yita = yita * sqrt(wi'*wi);
+           yita = yita * (wi'*wi);
            
            XX = ttv(XX,wi,mode);
        end
@@ -66,10 +71,10 @@ while itk < maxk
     
     w = wnew;
     itk = itk+1;
-    if abs(sum) < 1e-7
+    sum
+    if abs(sum) < 1e-4
         break;
     end
-    fval
     if fval < fmin
         tw = w;
         tbest =a_all;
@@ -112,5 +117,6 @@ stm.w = wnew;
 stm.a = a_all;
 stm.c = C;
 stm.b = b;
+'success'
 end
 
